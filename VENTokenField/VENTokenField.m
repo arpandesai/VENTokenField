@@ -30,7 +30,7 @@ static const CGFloat VENTokenFieldDefaultVerticalInset      = 7.0;
 static const CGFloat VENTokenFieldDefaultHorizontalInset    = 15.0;
 static const CGFloat VENTokenFieldDefaultToLabelPadding     = 5.0;
 static const CGFloat VENTokenFieldDefaultTokenPadding       = 2.0;
-static const CGFloat VENTokenFieldDefaultMinInputWidth      = 80.0;
+static const CGFloat VENTokenFieldDefaultMinInputWidth      = 20;
 static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 
 
@@ -97,12 +97,14 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     self.inputTextFieldTextColor = [UIColor colorWithRed:38/255.0f green:39/255.0f blue:41/255.0f alpha:1.0f];
     
     // Accessing bare value to avoid kicking off a premature layout run.
-    _toLabelText = NSLocalizedString(@"To:", nil);
+    _toLabelText = NSLocalizedString(@"", nil);
 
     self.originalHeight = CGRectGetHeight(self.frame);
 
     // Add invisible text field to handle backspace when we don't have a real first responder.
     [self layoutInvisibleTextField];
+    _inputTextField.inputAccessoryView = [[UIView alloc] init];
+    
 
     [self layoutScrollView];
     [self reloadData];
@@ -122,6 +124,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
 {
     _placeholderText = placeholderText;
     self.inputTextField.placeholder = _placeholderText;
+    UIColor *color = [UIColor colorWithRed:255.0 green:0.0 blue:0.0 alpha:1.0];
+    self.inputTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholderText attributes:@{NSForegroundColorAttributeName: color}];
 }
 
 -(void)setInputTextFieldAccessibilityLabel:(NSString *)inputTextFieldAccessibilityLabel {
@@ -557,6 +561,8 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     return NO;
 }
 
+
+
 - (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     if (textField == self.inputTextField) {
@@ -591,7 +597,7 @@ static const CGFloat VENTokenFieldDefaultMaxHeight          = 150.0;
     if ([self.delegate respondsToSelector:@selector(tokenField:didDeleteTokenAtIndex:)] && [self numberOfTokens]) {
         BOOL didDeleteToken = NO;
         for (VENToken *token in self.tokens) {
-            if (token.highlighted) {
+            if (!token.highlighted) {
                 [self.delegate tokenField:self didDeleteTokenAtIndex:[self.tokens indexOfObject:token]];
                 didDeleteToken = YES;
                 break;
